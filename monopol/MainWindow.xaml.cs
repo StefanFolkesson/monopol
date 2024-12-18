@@ -17,8 +17,6 @@ namespace monopol {
         public MainWindow() {
             InitializeComponent();
             MonopolyClass monopolyClass = new MonopolyClass();
-            monopolyClass.ChangeMw("Hej");
-            string namn = monopolyClass.GetMw();
 
         }
     }

@@ -1,17 +1,23 @@
 ﻿namespace monopol {
     public class GamePlayer {
-        private string v1;
-        private int v2;
-        private int v3;
 
-        public GamePlayer(string v1, int v2, int v3) {
-            this.v1 = v1;
-            this.v2 = v2;
-            this.v3 = v3;
-        }
+        private string name;
+        private int money;
+        private int position;
 
-        public void RecieveCard(Card card) {
-            throw new System.NotImplementedException();
+        public GamePlayer(string name, int money, int position) {
+            Name = name;
+            Money = money;
+            Position = position;
         }
+        public string Name { get => name; set => name = value; }
+        public int Money { get => money; set => money = value; }
+        public int Position { get => position; set => position = value; }
+        public bool GetOutOfJail { get; internal set; }
+
+
+        /*   public void RecieveCard(Card card) {
+               throw new System.NotImplementedException();
+           }*/
     }
 }

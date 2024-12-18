@@ -2,14 +2,9 @@
 using System.Xml;
 
 namespace monopol {
-    internal class ChanceDeck :Deck{
+    internal class ChanceDeck : Deck {
         public ChanceDeck() {
-            
-        }
-
-        public new void DrawCard() {
-            Card card = base.DrawCard();
-            card.DisplayInfo();
+            LoadCards("chancecards.xml");
         }
 
         public void LoadCards(string XmlFileName) {
@@ -17,13 +12,40 @@ namespace monopol {
             doc.Load(XmlFileName);
             XmlNodeList cards = doc.GetElementsByTagName("chancecard");
             foreach (XmlNode card in cards) {
-                string description = card.SelectSingleNode("description").InnerText;
-                int number = int.Parse(card.SelectSingleNode("id").InnerText);
-                AddCard(new Card(description, number));
-            }
+                string description = "";
+                int number = 0;
+                string action = "";
+                int destination = 0;
+                int amount = 0;
+                XmlNode descriptionNode = card.SelectSingleNode("description");
+                if (descriptionNode != null) {
+                    description = descriptionNode.InnerText;
+                }
 
+                XmlNode numberNode = card.SelectSingleNode("id");
+                if (numberNode != null) {
+                    number = int.Parse(numberNode.InnerText);
+                }
+
+                XmlNode actionNode = card.SelectSingleNode("action");
+                if (actionNode != null) {
+                    action = actionNode.InnerText;
+                }
+
+                XmlNode destinationNode = card.SelectSingleNode("destination");
+                if (destinationNode != null) {
+                    destination = int.Parse(destinationNode.InnerText);
+                }
+
+                XmlNode amountNode = card.SelectSingleNode("amount");
+                if (amountNode != null) {
+                    amount = int.Parse(amountNode.InnerText);
+                }
+
+                AddCard(new Card(description, number, action, destination, amount));
+            }
         }
 
-
+    }
         
 }

@@ -1,9 +1,9 @@
-﻿using System.Windows.Controls;
+﻿using System.Diagnostics;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace monopol {
     internal class MonopolyClass {
-        private string mw; 
         private Deck chancedeck = new ChanceDeck();
         private Deck communitydeck = new CommunityDeck();
         private List<GamePlayer> gameplayers = new List<GamePlayer>();
@@ -14,7 +14,7 @@ namespace monopol {
             List<BoardObject> board = new List<BoardObject>();
             board.Add(new Street("Hamngatan", 1, "Röd", 3000, 250, 1000));
             board.Add(new TrainStation("Centralstationen", 5, 2000, 500));
-            board.Add(new ChancePosition("Chansen", 7);
+            board.Add(new ChancePosition("Chansen", 7));
             board.Add(new Street("Kungsgatan", 9, "Röd", 3000, 250, 1000));
             board.Add(new Street("Stureplan", 11, "Gul", 3500, 350, 1500));
             board.Add(new Street("Götgatan", 13, "Gul", 3500, 350, 1500));
@@ -25,19 +25,12 @@ namespace monopol {
 
             gameplayers.Add(new GamePlayer("Spelare 1", 1, 10000));
             gameplayers.Add(new GamePlayer("Spelare 2", 1, 10000));
-        }
-        private void OutputToWpf(string message) {
-            mw.Text += message + "\n";
-        }
-        public void ChangeMw(string mw) {
-            if(mw == null) {
-                throw new System.ArgumentNullException();
-            } else {
-                mw = mw;
+            gameplayers[0].Position = 7;
+            foreach (BoardObject square in board) {
+                if(square is ChancePosition)
+                    ((ChancePosition)square).giveCard(gameplayers[currentPlayer], (ChanceDeck)chancedeck);
+                Debug.WriteLine($"{square.Name}");
             }
-        }
-        public static string GetMw() {
-            return mw;
         }
     }
 }
