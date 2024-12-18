@@ -10,22 +10,29 @@ namespace monopol {
         private List<GamePlayer> gameplayers = new List<GamePlayer>();
         private int currentPlayer = 0;
         private List<BoardObject> board = new List<BoardObject>();
+        //TODO: gör board till en klass
+        // Flytta korten dit
+        // Lägga till en bank
+        // Funktion för kasta tärningar i monopolklassen
+        // Get my ownership på boardklassen
+        // Funktionen köpa gata på street, utility station. Fixa till ett till arv.
+        // Köpa hus på street
+        // Köpa hotell på street
+        // Sälja hus på street
 
-        // public enum card {Chance, CommunityChest};
+
         public MonopolyClass() {
             // Create all the squares on the board and add the swedish names to the streets and add them to the list
 
-
-
-
+            loadBoard("boardspaces.xml");
             gameplayers.Add(new GamePlayer("Spelare 1", 1, 10000));
             gameplayers.Add(new GamePlayer("Spelare 2", 1, 10000));
-            gameplayers[0].Position = 7;
+/*            gameplayers[0].Position = 7;
             foreach (BoardObject square in board) {
                 if(square is ChancePosition)
                     ((ChancePosition)square).giveCard(gameplayers[currentPlayer], (ChanceDeck)chancedeck);
                 Debug.WriteLine($"{square.Name}");
-            }
+            }*/
         }
         public void loadBoard(string XmlFileName) {
             XmlDocument doc = new XmlDocument();
