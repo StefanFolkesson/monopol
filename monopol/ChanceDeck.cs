@@ -1,10 +1,13 @@
 ﻿
+using System.Diagnostics;
 using System.Xml;
 
 namespace monopol {
     internal class ChanceDeck : Deck {
         public ChanceDeck() {
             LoadCards("chancecards.xml");
+            Debug.WriteLine("ChanceDeck created");
+
         }
 
         public void LoadCards(string XmlFileName) {

@@ -1,25 +1,17 @@
 ﻿namespace monopol {
-    public class Street : BoardObject {
+    public class Street : BuyableObject {
         public string ColorGroup { get; set; }   // Färggruppen
-        public int Price { get; set; }           // Kostnad för att köpa gatan
-        public int Rent { get; set; }            // Grundhyra
         public int HouseCost { get; set; }       // Kostnad för att bygga hus
         public int Houses { get; private set; }  // Antal hus
         public bool HasHotel { get; private set; }
-        public bool IsMortgaged { get; set; }    // Om gatan är pantsatt
-        public GamePlayer Owner { get; set; }    // Ägaren
 
         // Konstruktor
-        public Street(string name, int position, string colorGroup, int price, int rent, int houseCost, int hotelcost, int mortgage)
-            : base(name, position) {
+        public Street(string name, int position, string colorGroup, int price, int baseRent, int houseCost, int hotelcost, int mortgage)
+            : base(name, position,price,baseRent) {
             ColorGroup = colorGroup;
-            Price = price;
-            Rent = rent;
             HouseCost = houseCost;
             Houses = 0;
             HasHotel = false;
-            IsMortgaged = false;
-            Owner = null;
         }
 
         // Bygg hus
@@ -41,23 +33,13 @@
             }
         }
 
-        public void Mortgage() {
-            IsMortgaged = true;
-        }
 
-        public void Unmortgage() {
-            IsMortgaged = false;
-        }
-
-        public void ChangeOwner(GamePlayer newOwner) {
-            Owner = newOwner;
-        }
 
         // Beräkna hyra
         public int CalculateRent() {
             if (HasHotel)
-                return Rent * 5; // Exempel: hotell ger fem gånger grundhyran
-            return Rent + (Houses * (Rent / 2)); // Varje hus ökar hyran
+                return BaseRent * 5; // Exempel: hotell ger fem gånger grundhyran
+            return BaseRent + (Houses * (BaseRent / 2)); // Varje hus ökar hyran
         }
 
         public override void DisplayInfo() {
@@ -71,7 +53,7 @@
             }
             Console.WriteLine($"Hyra: {CalculateRent()} kr");
             Console.WriteLine($"Antal hus: {Houses}, Hotell: {HasHotel}");
-            Console.WriteLine($"Ägare: {(Owner ?? "Ingen")}");
+            Console.WriteLine($"Ägare: {(Owner==null?"Ingen":Owner.Name)}");
         }
     }
 

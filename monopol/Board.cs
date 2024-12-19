@@ -1,4 +1,5 @@
-﻿using System.Xml;
+﻿using System.Diagnostics;
+using System.Xml;
 
 namespace monopol {
     internal class Board {
@@ -8,6 +9,7 @@ namespace monopol {
 
         public Board() {
             loadBoard("boardspaces.xml");
+            Debug.WriteLine($"Board created {board.Count}");
         }
         public void DrawCommunityCard(GamePlayer player) {
             // Handle the cards
@@ -108,7 +110,6 @@ namespace monopol {
                 case "getOutOfJail":
                     player.GetOutOfJail = true;
                     break;
-
                 default:
                     break;
             }
@@ -118,6 +119,7 @@ namespace monopol {
             XmlDocument doc = new XmlDocument();
             doc.Load(XmlFileName);
             XmlNodeList squares = doc.GetElementsByTagName("Space");
+            int counter = 0;
             foreach (XmlNode square in squares) {
                 string name = "";
                 string color = "";
@@ -172,9 +174,13 @@ namespace monopol {
                 if (positionNode != null) {
                     position = int.Parse(positionNode.InnerText);
                 }
-
+                Debug.WriteLine($"{counter++} Name: {name}, Color: {color}, Type: {type}, Rent: {rent}, Price: {price}, HouseCost: {housecost}, HotelCost: {hotelcost}, Mortgage: {mortgage}, Position: {position}");
                 if (type == "Street") {
                     board.Add(new Street(name, position, color, price, rent, housecost, hotelcost, mortgage));
+                } else if (type == "TrainStation") {
+                    board.Add(new TrainStation(name, position, price, rent));
+                } else if (type == "Utility") {
+                    board.Add(new Utility(name, position, price, rent));
                 } else if (type == "Chance") {
                     board.Add(new ChancePosition(name, position));
                 } else if (type == "CommunityChest") {
@@ -182,7 +188,7 @@ namespace monopol {
                 } else if (type == "Tax") {
                     board.Add(new TaxPosition(name, position, price));
                 } else if (type == "Jail") {
-                    board.Add(new SpecialPosition(name, position,type));
+                    board.Add(new SpecialPosition(name, position, type));
                 } else if (type == "GoToJail") {
                     board.Add(new SpecialPosition(name, position, type));
                 } else if (type == "FreeParking") {
@@ -194,8 +200,8 @@ namespace monopol {
             }
 
         }
-
         internal BoardObject GetSpace(int position) {
             return board[position];
         }
     }
+}
