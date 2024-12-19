@@ -1,17 +1,18 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Xml;
 
 namespace monopol {
     internal class MonopolyClass {
-        private Deck chancedeck = new ChanceDeck();
-        private Deck communitydeck = new CommunityDeck();
         private List<GamePlayer> gameplayers = new List<GamePlayer>();
+        private Board board = new Board();
         private int currentPlayer = 0;
-        private List<BoardObject> board = new List<BoardObject>();
-        //TODO: gör board till en klass
-        // Flytta korten dit
+        private Random random = new Random();
+
+        //TODO: gör board till en klass ... Hrmmm.. funkar?
+        // Flytta korten dit ...  flyttade till board
         // Lägga till en bank
         // Funktion för kasta tärningar i monopolklassen
         // Get my ownership på boardklassen
@@ -24,93 +25,116 @@ namespace monopol {
         public MonopolyClass() {
             // Create all the squares on the board and add the swedish names to the streets and add them to the list
 
-            loadBoard("boardspaces.xml");
             gameplayers.Add(new GamePlayer("Spelare 1", 1, 10000));
             gameplayers.Add(new GamePlayer("Spelare 2", 1, 10000));
-/*            gameplayers[0].Position = 7;
-            foreach (BoardObject square in board) {
-                if(square is ChancePosition)
-                    ((ChancePosition)square).giveCard(gameplayers[currentPlayer], (ChanceDeck)chancedeck);
-                Debug.WriteLine($"{square.Name}");
-            }*/
+            /*            gameplayers[0].Position = 7;
+                        foreach (BoardObject square in board) {
+                            if(square is ChancePosition)
+                                ((ChancePosition)square).giveCard(gameplayers[currentPlayer], (ChanceDeck)chancedeck);
+                            Debug.WriteLine($"{square.Name}");
+                        }*/
+            StartGameLoop();
         }
-        public void loadBoard(string XmlFileName) {
-            XmlDocument doc = new XmlDocument();
-            doc.Load(XmlFileName);
-            XmlNodeList squares = doc.GetElementsByTagName("Space");
-            foreach (XmlNode square in squares) {
-                string name = "";
-                string color = "";
-                string type = "";
-                int rent = 0;
-                int price = 0;
-                int housecost = 0;
-                int hotelcost = 0;
-                int mortgage = 0;
-                int position = 0;
-                XmlNode nameNode = square.SelectSingleNode("Name");
-                if (nameNode != null) {
-                    name = nameNode.InnerText;
-                }
 
-                XmlNode colorNode = square.SelectSingleNode("Color");
-                if (colorNode != null) {
-                    color = colorNode.InnerText;
-                }
+        // Create a turnbased gameloop for monopoly
 
-                XmlNode typeNode = square.SelectSingleNode("Type");
-                if (typeNode != null) {
-                    type = typeNode.InnerText;
-                }
 
-                XmlNode rentNode = square.SelectSingleNode("Rent");
-                if (rentNode != null) {
-                    rent = int.Parse(rentNode.InnerText);
-                }
+        private void StartGameLoop() {
+            bool gameRunning = true;
 
-                XmlNode priceNode = square.SelectSingleNode("Price");
-                if (priceNode != null) {
-                    price = int.Parse(priceNode.InnerText);
-                }
+            while (gameRunning) {
+                GamePlayer player = gameplayers[currentPlayer];
+                Console.WriteLine($"{player.Name}'s turn.");
 
-                XmlNode housecostNode = square.SelectSingleNode("HouseCost");
-                if (housecostNode != null) {
-                    housecost = int.Parse(housecostNode.InnerText);
-                }
+                // Roll dice
+                int diceRoll = RollDice();
+                Console.WriteLine($"{player.Name} rolled a {diceRoll}.");
 
-                XmlNode hotelcostNode = square.SelectSingleNode("HotelCost");
-                if (hotelcostNode != null) {
-                    hotelcost = int.Parse(hotelcostNode.InnerText);
-                }
+                // Move player
+                player.Position = (player.Position + diceRoll) % 40;
+                BoardObject currentSpace = board.GetSpace(player.Position);
+                Console.WriteLine($"{player.Name} landed on {currentSpace.Name}.");
 
-                XmlNode mortgageNode = square.SelectSingleNode("Mortgage");
-                if (mortgageNode != null) {
-                    mortgage = int.Parse(mortgageNode.InnerText);
-                }
+                // Handle the space the player landed on
+                HandleSpace(player, currentSpace);
 
-                XmlNode positionNode = square.SelectSingleNode("Position");
-                if (positionNode != null) {
-                    position = int.Parse(positionNode.InnerText);
-                }
+                // Check for game-ending conditions
+                gameRunning = CheckGameEnd();
 
-                if (type == "Street") {
-                    board.Add(new Street(name, position, color, price, rent, housecost, hotelcost, mortgage));
-                } else if (type == "Chance") {
-                    board.Add(new ChancePosition(name, position));
-                } else if (type == "CommunityChest") {
-                    board.Add(new CommunityChestPosition(name, position));
-                } else if (type == "Tax") {
-                    board.Add(new TaxPosition(name, position, price));
-                } else if (type == "Jail") {
-                    board.Add(new JailPosition(name, position));
-                } else if (type == "GoToJail") {
-                    board.Add(new GoToJailPosition(name, position));
-                } else if (type == "FreeParking") {
-                    board.Add(new FreeParkingPosition(name, position));
-                } else if (type == "Go") {
-                    board.Add(new GoPosition(name, position));
-                }
+                // Move to the next player
+                currentPlayer = (currentPlayer + 1) % gameplayers.Count;
+            }
 
+            Console.WriteLine("Game over!");
+        }
+
+        private int RollDice() {
+            return random.Next(1, 7) + random.Next(1, 7);
+        }
+
+        private void HandleSpace(GamePlayer player, BoardObject space) {
+            // Implement logic for handling different types of spaces
+            if (space is Street street) {
+                if (street.Owner == null) {
+                    // Offer to buy the street
+                    Console.WriteLine($"{player.Name} can buy {street.Name} for {street.Price}.");
+                    street.ChangeOwner(player);
+                    player.Money -= street.Price;
+                } else if (street.Owner != player) {
+                    // Pay rent
+                    Console.WriteLine($"{player.Name} pays rent to {street.Owner}.");
+                    player.Money -= street.CalculateRent();
+                    street.Owner.Money += street.CalculateRent();
+                    // Handle bankrupcy with mortgaging and selling houses
+                }
+            } else if (space is ChancePosition) {
+                // Draw a chance card
+                Console.WriteLine($"{player.Name} draws a chance card.");
+                board.DrawChanceCard(player);
+
+            } else if (space is CommunityChestPosition) {
+                // Draw a community chest card
+                Console.WriteLine($"{player.Name} draws a community chest card.");
+                board.DrawCommunityCard(player);
+
+                // Implement community chest card logic
+            } else if (space is TaxPosition tax) {
+                // Pay tax
+                Console.WriteLine($"{player.Name} pays {tax.Price} in taxes.");
+                player.Money -= tax.Price;
+
+            } else if (space is SpecialPosition special) {
+                // Handle special positions like "Go to Jail"
+                Console.WriteLine($"{player.Name} landed on {special.Name}.");
+
+                if( special.Type == "GoToJail") {
+                    if(player.GetOutOfJail != true) {
+                        player.Position = 10;
+                        player.GoToJail();
+                    }
+                }
+                if (special.Type == "Jail") {
+                    Console.WriteLine($"{player.Name} is visiting jail.");
+                }
+                if (special.Type == "FreeParking") {
+                    Console.WriteLine($"{player.Name} is in free parking.");
+                }
+                if (special.Type == "Go") {
+                    Console.WriteLine($"{player.Name} passed go and gets 200.");
+                    player.Money += 200;
+                }
+            }
+
+        private bool CheckGameEnd() {
+            // Implement game-ending conditions
+            // For example, check if a player is bankrupt
+            foreach (var player in gameplayers) {
+                if (player.Money <= 0) {
+                    Console.WriteLine($"{player.Name} is bankrupt!");
+                    return true;
+                }
+            }
+            return false;
         }
 
     }

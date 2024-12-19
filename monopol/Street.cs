@@ -6,9 +6,11 @@
         public int HouseCost { get; set; }       // Kostnad för att bygga hus
         public int Houses { get; private set; }  // Antal hus
         public bool HasHotel { get; private set; }
+        public bool IsMortgaged { get; set; }    // Om gatan är pantsatt
+        public GamePlayer Owner { get; set; }    // Ägaren
 
         // Konstruktor
-        public Street(string name, int position, string colorGroup, int price, int rent, int houseCost)
+        public Street(string name, int position, string colorGroup, int price, int rent, int houseCost, int hotelcost, int mortgage)
             : base(name, position) {
             ColorGroup = colorGroup;
             Price = price;
@@ -16,6 +18,8 @@
             HouseCost = houseCost;
             Houses = 0;
             HasHotel = false;
+            IsMortgaged = false;
+            Owner = null;
         }
 
         // Bygg hus
@@ -26,6 +30,27 @@
                 HasHotel = true;
                 Houses = 0;
             }
+        }
+
+        public void SellHouse() {
+            if (HasHotel) {
+                HasHotel = false;
+                Houses = 4;
+            } else if (Houses > 0) {
+                Houses--;
+            }
+        }
+
+        public void Mortgage() {
+            IsMortgaged = true;
+        }
+
+        public void Unmortgage() {
+            IsMortgaged = false;
+        }
+
+        public void ChangeOwner(GamePlayer newOwner) {
+            Owner = newOwner;
         }
 
         // Beräkna hyra
@@ -39,7 +64,12 @@
             Console.WriteLine($"Gata: {Name}");
             Console.WriteLine($"Färggrupp: {ColorGroup}");
             Console.WriteLine($"Pris: {Price} kr");
-            Console.WriteLine($"Grundhyra: {Rent} kr");
+            if (IsMortgaged) {
+                Console.WriteLine($"Pantvärde: {Price} kr");
+                Console.WriteLine($"Hyra: {0} kr");
+                Console.WriteLine($"Antal hus: {Houses}, Hotell: {HasHotel}");
+            }
+            Console.WriteLine($"Hyra: {CalculateRent()} kr");
             Console.WriteLine($"Antal hus: {Houses}, Hotell: {HasHotel}");
             Console.WriteLine($"Ägare: {(Owner ?? "Ingen")}");
         }
