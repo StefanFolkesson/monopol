@@ -1,11 +1,11 @@
 ﻿using System.Xml.Linq;
 
 namespace monopol {
-    internal class TaxPosition : BoardObject {
+    internal class TaxSpace : BoardSpace {
 
         private int price;
         public int Price { get => price; set => price = value; }
-        public TaxPosition(string name, int position, int price) : base(name, position) {
+        public TaxSpace(string name, int position, int price) : base(name, position) {
             Price = price;
         }
         public override void DisplayInfo() {

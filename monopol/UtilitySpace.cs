@@ -1,7 +1,10 @@
-﻿namespace monopol {
-    public class Utility : BuyableObject {
+﻿using System.Diagnostics;
+using System.Windows;
+
+namespace monopol {
+    public class UtilitySpace : BuyableSpace {
         // Konstruktor
-        public Utility(string name, int position, int price, int baseRent)
+        public UtilitySpace(string name, int position, int price, int baseRent)
             : base(name, position,baseRent,price) {
 
         }
@@ -19,6 +22,13 @@
             Console.WriteLine($"Ägare: {(Owner==null ? "Ingen":Owner.Name)}");
         }
 
-    }
+        public override void HandleAction(GamePlayer currentPlayer) {
+            // Logik för att betala hyra
+            base.HandleAction(currentPlayer, CalculateRent());
+            if (Owner == currentPlayer) {
+                // Du äger inget händer
+            }
+
+        }
 
 }

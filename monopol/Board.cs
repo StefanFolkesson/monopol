@@ -5,115 +5,13 @@ namespace monopol {
     internal class Board {
         private Deck chancedeck = new ChanceDeck();
         private Deck communitydeck = new CommunityDeck();
-        private List<BoardObject> board = new List<BoardObject>();
+        private List<BoardSpace> board = new List<BoardSpace>();
 
         public Board() {
             loadBoard("boardspaces.xml");
             Debug.WriteLine($"Board created {board.Count}");
         }
-        public void DrawCommunityCard(GamePlayer player) {
-            // Handle the cards
-            Card card = communitydeck.DrawCard();
-            switch (card.Action) {
-                case "directadvance":
-                    // Go to a specific position
-                    player.Position = card.Destination;
-                    break;
-                // Go to a relatove position
 
-                case "specialadvance":
-                    if (card.Number == 4) {
-                        // Utility
-                        int[] utilitypositions = { 12, 28 };
-                        foreach (int utility in utilitypositions) {
-                            if (player.Position < utility) {
-                                player.Position = utility;
-                                break;
-                            }
-                        }
-                    }
-                    if (card.Number == 5) {
-                        // Railroad
-                        int[] railroadpositions = { 5, 15, 25, 35 };
-                        foreach (int railroad in railroadpositions) {
-                            if (player.Position < railroad) {
-                                player.Position = railroad;
-                                break;
-                            }
-                        }
-                    }
-                    if (card.Number == 8) {
-                        // Back 3 spaces
-                        player.Position -= 3;
-                    }
-
-                    player.Position += card.Destination;
-                    break;
-                case "credit":
-                    player.Money += card.Amount;
-                    break;
-                case "debit":
-                    player.Money -= card.Amount;
-                    break;
-                case "getOutOfJail":
-                    player.GetOutOfJail = true;
-                    break;
-
-                default:
-                    break;
-            }
-        }
-        public void DrawChanceCard(GamePlayer player) {
-            // Handle the cards
-            Card card = chancedeck.DrawCard();
-            switch (card.Action) {
-                case "directadvance":
-                    // Go to a specific position
-                    player.Position = card.Destination;
-                    break;
-                // Go to a relatove position
-
-                case "specialadvance":
-                    if (card.Number == 4) {
-                        // Utility
-                        int[] utilitypositions = { 12, 28 };
-                        foreach (int utility in utilitypositions) {
-                            if (player.Position < utility) {
-                                player.Position = utility;
-                                break;
-                            }
-                        }
-                    }
-                    if (card.Number == 5) {
-                        // Railroad
-                        int[] railroadpositions = { 5, 15, 25, 35 };
-                        foreach (int railroad in railroadpositions) {
-                            if (player.Position < railroad) {
-                                player.Position = railroad;
-                                break;
-                            }
-                        }
-                    }
-                    if (card.Number == 8) {
-                        // Back 3 spaces
-                        player.Position -= 3;
-                    }
-
-                    player.Position += card.Destination;
-                    break;
-                case "credit":
-                    player.Money += card.Amount;
-                    break;
-                case "debit":
-                    player.Money -= card.Amount;
-                    break;
-                case "getOutOfJail":
-                    player.GetOutOfJail = true;
-                    break;
-                default:
-                    break;
-            }
-        }
 
         public void loadBoard(string XmlFileName) {
             XmlDocument doc = new XmlDocument();
@@ -176,32 +74,44 @@ namespace monopol {
                 }
                 Debug.WriteLine($"{counter++} Name: {name}, Color: {color}, Type: {type}, Rent: {rent}, Price: {price}, HouseCost: {housecost}, HotelCost: {hotelcost}, Mortgage: {mortgage}, Position: {position}");
                 if (type == "Street") {
-                    board.Add(new Street(name, position, color, price, rent, housecost, hotelcost, mortgage));
+                    board.Add(new StreetSpace(name, position, color, price, rent, housecost, hotelcost, mortgage));
                 } else if (type == "TrainStation") {
-                    board.Add(new TrainStation(name, position, price, rent));
+                    board.Add(new TrainStationSpace(name, position, price, rent));
                 } else if (type == "Utility") {
-                    board.Add(new Utility(name, position, price, rent));
+                    board.Add(new UtilitySpace(name, position, price, rent));
                 } else if (type == "Chance") {
-                    board.Add(new ChancePosition(name, position));
+                    board.Add(new ChanceSpace(name, position));
                 } else if (type == "CommunityChest") {
-                    board.Add(new CommunityChestPosition(name, position));
+                    board.Add(new CommunityChestSpace(name, position));
                 } else if (type == "Tax") {
-                    board.Add(new TaxPosition(name, position, price));
+                    board.Add(new TaxSpace(name, position, price));
                 } else if (type == "Jail") {
-                    board.Add(new SpecialPosition(name, position, type));
+                    board.Add(new SpecialSpace(name, position, type));
                 } else if (type == "GoToJail") {
-                    board.Add(new SpecialPosition(name, position, type));
+                    board.Add(new SpecialSpace(name, position, type));
                 } else if (type == "FreeParking") {
-                    board.Add(new SpecialPosition(name, position, type));
+                    board.Add(new SpecialSpace(name, position, type));
                 } else if (type == "Go") {
-                    board.Add(new SpecialPosition(name, position, type));
+                    board.Add(new SpecialSpace(name, position, type));
                 }
 
             }
 
         }
-        internal BoardObject GetSpace(int position) {
+
+
+        internal BoardSpace GetSpace(int position) {
             return board[position];
+        }
+
+        internal void HandleAction(GamePlayer player) {
+            if(board[player.Position] is ChanceSpace) 
+                ((ChanceSpace)board[player.Position]).HandleAction(player, chancedeck.DrawCard());
+            else if (board[player.Position] is CommunityChestSpace)
+                ((CommunityChestSpace)board[player.Position]).HandleAction(player, communitydeck.DrawCard());
+            else
+                board[player.Position].HandleAction(player); // Street , train, utility, special
+
         }
     }
 }

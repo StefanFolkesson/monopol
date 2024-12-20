@@ -1,12 +1,17 @@
-﻿namespace monopol {
-    public class Street : BuyableObject {
+﻿using System.Diagnostics;
+using System.IO;
+using System.Numerics;
+using System.Windows;
+
+namespace monopol {
+    public class StreetSpace : BuyableSpace {
         public string ColorGroup { get; set; }   // Färggruppen
         public int HouseCost { get; set; }       // Kostnad för att bygga hus
         public int Houses { get; private set; }  // Antal hus
         public bool HasHotel { get; private set; }
 
         // Konstruktor
-        public Street(string name, int position, string colorGroup, int price, int baseRent, int houseCost, int hotelcost, int mortgage)
+        public StreetSpace(string name, int position, string colorGroup, int price, int baseRent, int houseCost, int hotelcost, int mortgage)
             : base(name, position,price,baseRent) {
             ColorGroup = colorGroup;
             HouseCost = houseCost;
@@ -54,6 +59,17 @@
             Console.WriteLine($"Hyra: {CalculateRent()} kr");
             Console.WriteLine($"Antal hus: {Houses}, Hotell: {HasHotel}");
             Console.WriteLine($"Ägare: {(Owner==null?"Ingen":Owner.Name)}");
+        }
+        public override void HandleAction(GamePlayer currentPlayer) {
+            base.HandleAction(currentPlayer, CalculateRent());
+
+            if (Owner == currentPlayer) {  
+                // Player owns the street
+                // Offer to build houses
+                Debug.WriteLine($"{currentPlayer.Name} owns {Name}.");
+                Debug.WriteLine($"Build house for {HouseCost}?");
+                Debug.WriteLine($"Sell house for {HouseCost / 2}?");
+            }
         }
     }
 

@@ -9,7 +9,6 @@ namespace monopol {
             Debug.WriteLine("ChanceDeck created");
 
         }
-
         public void LoadCards(string XmlFileName) {
             XmlDocument doc = new XmlDocument();
             doc.Load(XmlFileName);
@@ -44,7 +43,6 @@ namespace monopol {
                 if (amountNode != null) {
                     amount = int.Parse(amountNode.InnerText);
                 }
-
                 AddCard(new Card(description, number, action, destination, amount));
             }
         }

@@ -31,10 +31,5 @@ namespace monopol {
         internal void GoToJail() {
             JailTurns = 3;
         }
-
-
-        /*   public void RecieveCard(Card card) {
-               throw new System.NotImplementedException();
-           }*/
     }
 }
