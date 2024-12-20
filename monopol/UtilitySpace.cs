@@ -5,7 +5,7 @@ namespace monopol {
     public class UtilitySpace : BuyableSpace {
         // Konstruktor
         public UtilitySpace(string name, int position, int price, int baseRent)
-            : base(name, position,baseRent,price) {
+            : base(name, position, baseRent, price) {
 
         }
 
@@ -19,7 +19,7 @@ namespace monopol {
             Console.WriteLine($"{Name}");
             Console.WriteLine($"Pris: {Price} kr");
             Console.WriteLine($"Grundhyra: {BaseRent} kr");
-            Console.WriteLine($"Ägare: {(Owner==null ? "Ingen":Owner.Name)}");
+            Console.WriteLine($"Ägare: {(Owner == null ? "Ingen" : Owner.Name)}");
         }
 
         public override void HandleAction(GamePlayer currentPlayer) {
@@ -30,5 +30,6 @@ namespace monopol {
             }
 
         }
+    }
 
 }
