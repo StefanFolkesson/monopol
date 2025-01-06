@@ -32,8 +32,8 @@ namespace monopol {
             // Load the board from XML
             board.loadBoard("boardspaces.xml");
 
-            gameplayers.Add(new GamePlayer("Spelare 1", 1, 5000));
-            gameplayers.Add(new GamePlayer("Spelare 2", 1, 5000));
+            gameplayers.Add(new GamePlayer("Spelare 1", 1, 50000,Brushes.Blue));
+            gameplayers.Add(new GamePlayer("Spelare 2", 1, 50000,Brushes.Red));
 
             LoadBoardSpaces();
             InitializePlayerCircles();
@@ -44,6 +44,8 @@ namespace monopol {
         // Create a turnbased gameloop for monopoly
 
         private void LoadBoardSpaces() {
+            // Clear canvas
+            boardCanvas.Children.Clear();
             int boardSize = 11; // Assuming a 10x10 board
             int sqwith = 90;
             int sqheight = 60;
@@ -58,40 +60,111 @@ namespace monopol {
                     TextAlignment = TextAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Center
                 };
+                int leftPos = 0;
+                int topPos = 0;
 
                 // Position the TextBlock on the canvas
                 if (i < boardSize) {
                     // Bottom row (0-9)
-                    Canvas.SetLeft(textBlock, (boardSize - 1 - i) * sqwith);
-                    Canvas.SetTop(textBlock, (boardSize - 1) * sqheight);
+                    leftPos = (boardSize - 1 - i) * sqwith;
+                    topPos = (boardSize - 1) * sqheight;
                 } else if (i < 2 * boardSize - 1) {
                     // Left column (10-19)
-                    Canvas.SetLeft(textBlock, 0);
-                    Canvas.SetTop(textBlock, (boardSize - 1 - (i - boardSize + 1)) * sqheight);
+                    leftPos = 0;
+                    topPos = (boardSize - 1 - (i - boardSize + 1)) * sqheight;
                 } else if (i < 3 * boardSize - 2) {
                     // Top row (20-29)
-                    Canvas.SetLeft(textBlock, (i - 2 * boardSize + 2) * sqwith);
-                    Canvas.SetTop(textBlock, 0);
+                    leftPos= (i - 2 * boardSize + 2) * sqwith;
+                    topPos =  0;
                 } else {
                     // Right column (30-39)
-                    Canvas.SetLeft(textBlock, (boardSize - 1) * sqwith);
-                    Canvas.SetTop(textBlock, (i - 3 * boardSize + 3) * sqheight);
+                    leftPos= (boardSize - 1) * sqwith;
+                    topPos = (i - 3 * boardSize + 3) * sqheight;
                 }
+                Canvas.SetLeft(textBlock, leftPos);
+                Canvas.SetTop(textBlock, topPos);
 
                 boardCanvas.Children.Add(textBlock);
+                // Draw houses on the board
+                if (space is StreetSpace) {
+                    StreetSpace street = (StreetSpace)space;
+                    for (int j = 0; j < street.Houses; j++) {
+                        Rectangle house = new Rectangle {
+                            Width = 10,
+                            Height = 10,
+                            Fill = Brushes.Green
+                        };
+                        int houseLeft = leftPos + 10 * j;
+                        int houseTop = topPos + 10;
+                        Canvas.SetLeft(house, houseLeft);
+                        Canvas.SetTop(house, houseTop);
+                        boardCanvas.Children.Add(house);
+                    }
+                }
+                // Draw a border of the owners color around the square
+                if (space is BuyableSpace) {
+                    BuyableSpace buyableSpace = (BuyableSpace)space;
+                    Rectangle border = new Rectangle {
+                        Width = sqwith,
+                        Height = sqheight,
+                        Stroke = buyableSpace.Owner==null?Brushes.Black:buyableSpace.Owner.PlayerColor,
+                        StrokeThickness = 5
+                    };
+                    Canvas.SetLeft(border, leftPos);
+                    Canvas.SetTop(border, topPos);
+                    boardCanvas.Children.Add(border);
+                }
             }
+            InitializePlayerCircles();
+
         }
         private void InitializePlayerCircles() {
+            var offsetLeft = 200;
+            var offsetTop = 200;
             foreach (var player in gameplayers) {
+                
+                // Write the player's name on the board
+                TextBlock playerName = new TextBlock {
+                    Text = player.Name,
+                    Background = Brushes.White,
+                    Foreground = Brushes.Black,
+                    Width = 100,
+                    Height = 20,
+                    TextAlignment = TextAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                Canvas.SetLeft(playerName, offsetLeft +  0);
+                Canvas.SetTop(playerName, offsetTop + 0);
+                boardCanvas.Children.Add(playerName);
+                // Add playersstats to the board
+                TextBlock playerStats = new TextBlock {
+                    Text = $"Money: {player.Money}",
+                    Background = Brushes.White,
+                    Foreground = Brushes.Black,
+                    Width = 100,
+                    Height = 20,
+                    TextAlignment = TextAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                Canvas.SetLeft(playerStats, offsetLeft + 0);
+                Canvas.SetTop(playerStats, offsetTop+20);
+                boardCanvas.Children.Add(playerStats);
+                offsetLeft += 150;
+
                 Ellipse playerCircle = new Ellipse {
                     Width = 20,
                     Height = 20,
-                    Fill = player.Name == "Spelare 1" ? Brushes.Blue : Brushes.Red
+                    Fill = player.PlayerColor
                 };
                 playerCircles[player] = playerCircle;
                 boardCanvas.Children.Add(playerCircle);
                 MovePlayerCircle(player);
             }
+        }
+
+        private void DrawHouses() {
+            // Draw houses on the board
+
         }
 
         private void MovePlayerCircle(GamePlayer player) {
@@ -127,6 +200,7 @@ namespace monopol {
             bool gameRunning = true;
 
             while (gameRunning) {
+                LoadBoardSpaces();
                 GamePlayer player = gameplayers[currentPlayer];
                 Debug.WriteLine($"{player.Name}'s turn. ({player.Money})");
 

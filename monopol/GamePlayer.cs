@@ -1,5 +1,7 @@
 ﻿
 
+using System.Windows.Media;
+
 namespace monopol {
     public class GamePlayer {
 
@@ -8,17 +10,23 @@ namespace monopol {
         private int position;
         private bool getOutOfJail;
         private int jailTurns;
+        private Brush color;
 
-        public GamePlayer(string name, int position, int money) {
+        public GamePlayer(string name, int position, int money, Brush color) {
             Name = name;
             Money = money;
             Position = position;
             GetOutOfJail = false;
+            JailTurns = 0;
+            PlayerColor = color;
+
         }
         public string Name { get => name; set => name = value; }
         public int Money { get => money; set => money = value; }
         public int Position { get => position; set => position = value; }
         public bool GetOutOfJail { get; internal set; }
+        public Brush PlayerColor { get => color; set => color = value; }
+
 
         public int JailTurns { get => jailTurns; set => jailTurns = value; }
 
