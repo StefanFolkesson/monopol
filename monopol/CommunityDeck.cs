@@ -2,11 +2,12 @@
 using System.Xml;
 namespace monopol {
     internal class CommunityDeck : Deck {
+        const string XmlFileName = "communitydeckcards.xml";
         public CommunityDeck() {
-            LoadCards("communitydeckcards.xml");
+            LoadCards();
             Debug.WriteLine("CommunityDeck created");
         }
-        private void LoadCards(string XmlFileName) {
+        public void LoadCards() {
             XmlDocument doc = new XmlDocument();
             doc.Load(XmlFileName);
             XmlNodeList cards = doc.GetElementsByTagName("communitydeckcard");

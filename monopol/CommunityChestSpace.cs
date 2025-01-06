@@ -15,7 +15,7 @@ namespace monopol {
         public void HandleAction(GamePlayer currentPlayer, Card card) {
             // Dra ett kort från chanshögen
             Card drawnCard = card;
-            Console.WriteLine($"{currentPlayer.Name} drew a chance card:");
+            Console.WriteLine($"{currentPlayer.Name} drew a Community Deck card:");
             switch (card.Action) {
                 case "directadvance":
                     // Go to a specific position

@@ -16,8 +16,7 @@ namespace monopol {
     public partial class MainWindow : Window {
         public MainWindow() {
             InitializeComponent();
-            MonopolyClass monopolyClass = new MonopolyClass();
-
+            MonopolyClass monopoly = new MonopolyClass(BoardCanvas);
         }
     }
 }

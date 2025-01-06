@@ -4,12 +4,13 @@ using System.Xml;
 
 namespace monopol {
     internal class ChanceDeck : Deck {
+        const string XmlFileName = "chancecards.xml";
         public ChanceDeck() {
-            LoadCards("chancecards.xml");
+            LoadCards();
             Debug.WriteLine("ChanceDeck created");
 
         }
-        public void LoadCards(string XmlFileName) {
+        public void LoadCards() {
             XmlDocument doc = new XmlDocument();
             doc.Load(XmlFileName);
             XmlNodeList cards = doc.GetElementsByTagName("chancecard");

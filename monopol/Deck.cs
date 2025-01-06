@@ -11,6 +11,9 @@ namespace monopol {
         }
         public Card DrawCard() {
             // remove the first element and return it
+            if(cards.Count == 0) {
+                return null;
+            }
             Card card = cards.First();
             cards.Remove(card);
             return card;

@@ -21,20 +21,36 @@ namespace monopol {
 
         // Bygg hus
         public void BuildHouse() {
+            if(Owner.Money < HouseCost) {
+                Debug.WriteLine("Not enough money to build house.");
+                return;
+            }
             if (Houses < 4 && !HasHotel) {
+                Owner.Money -= HouseCost;
                 Houses++;
+                Debug.WriteLine($"Built house on {Name}.");
             } else if (Houses == 4 && !HasHotel) {
+                if(Owner.Money < HouseCost*4) {
+                    Debug.WriteLine("Not enough money to build hotel.{HouseCost*4}");
+                    return;
+                }
+                Owner.Money -= HouseCost * 4;
                 HasHotel = true;
                 Houses = 0;
+                Debug.WriteLine($"Built hotel on {Name}.");
             }
         }
 
         public void SellHouse() {
             if (HasHotel) {
+                Owner.Money += HouseCost * 2;
                 HasHotel = false;
                 Houses = 4;
+                Debug.WriteLine($"Sold hotel on {Name}.");
             } else if (Houses > 0) {
+                Owner.Money += HouseCost / 2;
                 Houses--;
+                Debug.WriteLine($"Sold house on {Name}.");
             }
         }
 
@@ -61,14 +77,36 @@ namespace monopol {
             Console.WriteLine($"Ägare: {(Owner==null?"Ingen":Owner.Name)}");
         }
         public override void HandleAction(GamePlayer currentPlayer) {
-            base.HandleAction(currentPlayer, CalculateRent());
+            if(Owner == null) {
+                // Erbjud att köpa gatan
+                Debug.WriteLine($"{currentPlayer.Name} kan köpa {Name} för {Price}.");
+                ChangeOwner(currentPlayer);
+                currentPlayer.Money -= Price;
+            } else if (Owner != currentPlayer) {
+                // Betala hyra
+                Debug.WriteLine($"{currentPlayer.Name} betalar hyra till {Owner}.");
+                currentPlayer.Money -= CalculateRent();
+                Owner.Money += CalculateRent();
+                // Hantera bankrutt med pant och försäljning av hus
+            }
 
-            if (Owner == currentPlayer) {  
-                // Player owns the street
-                // Offer to build houses
-                Debug.WriteLine($"{currentPlayer.Name} owns {Name}.");
-                Debug.WriteLine($"Build house for {HouseCost}?");
-                Debug.WriteLine($"Sell house for {HouseCost / 2}?");
+            else if (Owner == currentPlayer) {
+                if (IsMortgaged) {
+                    // Player owns the street but it is mortgaged
+                    // Offer to unmortgage
+                    Debug.WriteLine($"{currentPlayer.Name} owns {Name} but it is mortgaged.");
+                    Debug.WriteLine($"Unmortgage for {Price * 1.1}?");
+                    if(Owner.Money >= Price * 1.1)
+                        Unmortgage();
+                } else {
+                    // Player owns the street
+                    // Offer to build houses
+                    Debug.WriteLine($"Build house for {HouseCost}?");
+                    Debug.WriteLine($"Sell house for {HouseCost / 2}?");
+                    Debug.WriteLine($"{currentPlayer.Name} owns {Name}.");
+                    if(currentPlayer.Money >= HouseCost)
+                        BuildHouse();
+                }
             }
         }
     }

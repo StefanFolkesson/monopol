@@ -22,10 +22,19 @@ namespace monopol {
         }
 
         public void Mortgage() {
+            if (IsMortgaged) {
+                return;
+            }
+            Debug.WriteLine($"{owner.Name} mortgages {Name} for {Price}.");
+            owner.Money += Price;
             IsMortgaged = true;
         }
 
         public void Unmortgage() {
+            if (!IsMortgaged) {
+                return;
+            }
+            owner.Money -= (int)(Price * 1.1);
             IsMortgaged = false;
         }
 

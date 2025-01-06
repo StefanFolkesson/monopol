@@ -5,11 +5,11 @@ namespace monopol {
     internal class Board {
         private Deck chancedeck = new ChanceDeck();
         private Deck communitydeck = new CommunityDeck();
-        private List<BoardSpace> board = new List<BoardSpace>();
+        public List<BoardSpace> boardSpaces = new List<BoardSpace>();
 
         public Board() {
-            loadBoard("boardspaces.xml");
-            Debug.WriteLine($"Board created {board.Count}");
+            
+            Debug.WriteLine($"Board created {boardSpaces.Count}");
         }
 
 
@@ -74,43 +74,66 @@ namespace monopol {
                 }
                 Debug.WriteLine($"{counter++} Name: {name}, Color: {color}, Type: {type}, Rent: {rent}, Price: {price}, HouseCost: {housecost}, HotelCost: {hotelcost}, Mortgage: {mortgage}, Position: {position}");
                 if (type == "Street") {
-                    board.Add(new StreetSpace(name, position, color, price, rent, housecost, hotelcost, mortgage));
+                    boardSpaces.Add(new StreetSpace(name, position, color, price, rent, housecost, hotelcost, mortgage));
                 } else if (type == "TrainStation") {
-                    board.Add(new TrainStationSpace(name, position, price, rent));
+                    boardSpaces.Add(new TrainStationSpace(name, position, price, rent));
                 } else if (type == "Utility") {
-                    board.Add(new UtilitySpace(name, position, price, rent));
+                    boardSpaces.Add(new UtilitySpace(name, position, price, rent));
                 } else if (type == "Chance") {
-                    board.Add(new ChanceSpace(name, position));
+                    boardSpaces.Add(new ChanceSpace(name, position));
                 } else if (type == "CommunityChest") {
-                    board.Add(new CommunityChestSpace(name, position));
+                    boardSpaces.Add(new CommunityChestSpace(name, position));
                 } else if (type == "Tax") {
-                    board.Add(new TaxSpace(name, position, price));
+                    boardSpaces.Add(new TaxSpace(name, position, price));
                 } else if (type == "Jail") {
-                    board.Add(new SpecialSpace(name, position, type));
+                    boardSpaces.Add(new SpecialSpace(name, position, type));
                 } else if (type == "GoToJail") {
-                    board.Add(new SpecialSpace(name, position, type));
+                    boardSpaces.Add(new SpecialSpace(name, position, type));
                 } else if (type == "FreeParking") {
-                    board.Add(new SpecialSpace(name, position, type));
+                    boardSpaces.Add(new SpecialSpace(name, position, type));
                 } else if (type == "Go") {
-                    board.Add(new SpecialSpace(name, position, type));
+                    boardSpaces.Add(new SpecialSpace(name, position, type));
                 }
 
             }
 
         }
 
+        internal BoardSpace[] GetMySpaces(GamePlayer player) {
+            // return all spaces owned by player
+            List<BoardSpace> myspaces = new List<BoardSpace>();
+            foreach (BoardSpace space in boardSpaces) {
+                if (space is BuyableSpace) {
+                    if (((BuyableSpace)space).Owner == player) {
+                        myspaces.Add(space);
+                    }
+                }
+            }
+            return myspaces.ToArray();
+        }
+
 
         internal BoardSpace GetSpace(int position) {
-            return board[position];
+            return boardSpaces[position];
         }
 
         internal void HandleAction(GamePlayer player) {
-            if(board[player.Position] is ChanceSpace) 
-                ((ChanceSpace)board[player.Position]).HandleAction(player, chancedeck.DrawCard());
-            else if (board[player.Position] is CommunityChestSpace)
-                ((CommunityChestSpace)board[player.Position]).HandleAction(player, communitydeck.DrawCard());
-            else
-                board[player.Position].HandleAction(player); // Street , train, utility, special
+            if (boardSpaces[player.Position] is ChanceSpace) {
+                Card card = chancedeck.DrawCard();
+                if (card != null) {
+                    ((ChanceDeck)chancedeck).LoadCards();
+                    card = chancedeck.DrawCard();
+                }
+                ((ChanceSpace)boardSpaces[player.Position]).HandleAction(player, chancedeck.DrawCard());
+            } else if (boardSpaces[player.Position] is CommunityChestSpace) {
+                Card card = communitydeck.DrawCard();
+                if (card != null) {
+                    ((CommunityDeck)communitydeck).LoadCards();
+                    card = communitydeck.DrawCard();
+                }
+                ((CommunityChestSpace)boardSpaces[player.Position]).HandleAction(player, communitydeck.DrawCard());
+            } else
+                boardSpaces[player.Position].HandleAction(player); // Street , train, utility, special
 
         }
     }

@@ -1,4 +1,5 @@
 ﻿
+
 namespace monopol {
     public class GamePlayer {
 
@@ -8,7 +9,7 @@ namespace monopol {
         private bool getOutOfJail;
         private int jailTurns;
 
-        public GamePlayer(string name, int money, int position) {
+        public GamePlayer(string name, int position, int money) {
             Name = name;
             Money = money;
             Position = position;
@@ -26,6 +27,22 @@ namespace monopol {
             Console.WriteLine($"Name: {Name}");
             Console.WriteLine($"Money: {Money}");
             Console.WriteLine($"Position: {Position}");
+        }
+
+        internal void checkMoney(BoardSpace[] mySpaces ) {
+            if(Money < 0) {
+                // Sell houses, mortgage properties
+                foreach (BoardSpace space in mySpaces) {
+                    if (space is BuyableSpace) {
+                        BuyableSpace buyableSpace = (BuyableSpace)space;
+                        if (buyableSpace.Owner == this && Money<0) {
+                            buyableSpace.Mortgage();
+                        }
+                    }
+                }
+
+                // Remove player from game
+            }
         }
 
         internal void GoToJail() {
